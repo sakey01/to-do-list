@@ -48,7 +48,7 @@ function App() {
   };
 
   // Handles tasks search
-  const filteredTasks = tasks.filter((t) => t.toLowerCase().includes(query.toLowerCase()));
+  const filteredTasks = tasks.filter((t) => t.text.toLowerCase().includes(query.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-gray-200">
