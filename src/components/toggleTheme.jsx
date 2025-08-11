@@ -1,17 +1,17 @@
-import DarkModeIcon from "@mui/icons-material/DarkMode";
+import {Sun, Moon} from 'lucide-react'
 import { useState } from "react";
 
 const ToggleTheme = () => {
-  const [theme, setTheme] = useState(false);
+  const [theme, setTheme] = useState();
 
   return (
     <button
       onClick={() => {
-        setTheme(!theme);
+        setTheme(() => {setTheme(theme === "dark" ? "light" : "dark")});
       }}
-      className="cursor-pointer bg-gray-800 rounded-xl p-2 hover:bg-gray-900"
+      className="cursor-pointer bg-gray-800 rounded-xl p-2 transition-all duration-500 ease-in-out hover:bg-gray-900 transform hover:rotate-360"
     >
-      <DarkModeIcon />
+      <Sun />
     </button>
   );
 };

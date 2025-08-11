@@ -1,15 +1,19 @@
 import "./App.css";
+import ToggleTheme from "./components/toggleTheme";
 import { useState, useEffect, useRef } from "react";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import SearchIcon from "@mui/icons-material/Search";
-import { Check, Edit3, Trash2 } from "lucide-react";
+
+import { Check, Edit2, Trash2, Search } from "lucide-react";
 
 function App() {
-  const [theme, setTheme] = useState(false);
   const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState(query);
   const [task, setTask] = useState("");
-  const [tasks, setTasks] = useState([]);
+  const [isIncluded, setIsIncluded] = useState(false);
+  const [visible, setVisible] = useState(true);
+  const [tasks, setTasks] = useState(() => {
+    // Load tasks on from local storage
+    const storedTasks = localStorage.getItem("tasks");
+    return storedTasks ? JSON.parse(storedTasks) : [];
+  });
 
   const inputRef = useRef(null);
 
@@ -18,17 +22,27 @@ function App() {
     inputRef.current.focus();
   }, []);
 
+  // blinking effect
   useEffect(() => {
-    const debounce = setTimeout(() => {
-      setDebouncedQuery(query);
-    }, 600);
+    const blink = setInterval(() => {
+      setVisible((v) => !v);
+    }, 1200);
 
-    return clearTimeout(debounce);
-  });
+    return () => clearInterval(blink);
+  }, []);
+
+  // Save items whenever 'tasks' changes
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   // Create new task list
   const addTask = () => {
     if (!task) return;
+    if (tasks.includes(task)) {
+      setIsIncluded(true);
+      return;
+    } else setIsIncluded(false);
     setTasks([...tasks, task]);
     setTask("");
   };
@@ -41,7 +55,7 @@ function App() {
       <header>
         {/* Navigation */}
         <nav className="flex items-center justify-between w-full p-6 shadow-lg bg-gradient-to-r from-gray-950 to-gray-900 border-b border-gray-800">
-          {/* Logo + href*/}
+          {/* Brand + link */}
           <div className="flex items-center space-x-4">
             <a
               href="https://github.com/sakey01/to-do-list"
@@ -57,7 +71,7 @@ function App() {
           {/* Search box + toggle */}
           <div className="flex items-center space-x-4">
             <div className="relative w-[300px] rounded-full bg-gray-800/70 backdrop-blur-sm text-gray-200 border border-gray-700 shadow-inner">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
               <input
                 type="search"
                 value={query}
@@ -72,13 +86,8 @@ function App() {
               />
             </div>
 
-            {/* Toggle dark theme */}
-            <button
-              onClick={() => setTheme(!theme)}
-              className="bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl p-2 border border-gray-700 shadow-md transition-colors"
-            >
-              <DarkModeIcon />
-            </button>
+            {/* Toggle dark/light theme */}
+            <ToggleTheme />
           </div>
         </nav>
       </header>
@@ -87,10 +96,17 @@ function App() {
         {/* Quote */}
         <h2 className="text-[3.2rem] font-bold text-gray-100">
           It doesn&apos;t have to be pretty.
+          <span
+            className={`transition-opacity duration-1000 ${
+              visible ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
+            |
+          </span>
         </h2>
 
         {/* Task input bar */}
-        <div className="flex border border-gray-800 rounded-full w-full max-w-xl p-2 gap-2 bg-gray-900/80 backdrop-blur-sm shadow-xl">
+        <div className="flex border border-gray-800 rounded-full w-full max-w-xl p-2 gap-2 bg-gray-900/80 backdrop-blur-sm shadow-xl ">
           <input
             type="text"
             className="flex-grow rounded-full px-4 py-2 bg-transparent text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-700"
@@ -113,14 +129,18 @@ function App() {
           </button>
         </div>
 
+        {isIncluded && <p>Error, tasks already contains task</p>}
+
+        {/* Task List */}
+        <h3 className="text-xl font-semibold">Task List</h3>
         {tasks && (
-          <ul>
+          <ul className="last:mb-16">
             {filteredTasks.map((task) => {
               const isChecked = tasks.includes(!task);
               return (
                 <li
                   key={task}
-                  className="flex justify-between items-center gap-3 p-2 rounded hover:bg-gray-800"
+                  className="flex justify-between items-center gap-6 p-4 rounded-full hover:bg-gray-800"
                 >
                   <span
                     className="capitalize"
@@ -136,10 +156,16 @@ function App() {
                     >
                       <Check size={20} />
                     </button>
-                    <button aria-label={`Edit task "${task}"`} className="p-1 hover:text-blue-400">
-                      <Edit3 size={20} />
+                    <button aria-label={`Edit2 task "${task}"`} className="p-1 hover:text-blue-400">
+                      <Edit2 size={20} />
                     </button>
-                    <button aria-label={`Delete task "${task}"`} className="p-1 hover:text-red-400">
+                    <button
+                      aria-label={`Delete task "${task}"`}
+                      className="p-1 hover:text-red-400"
+                      onClick={() => {
+                        setTasks(tasks.filter((i) => i !== task));
+                      }}
+                    >
                       <Trash2 size={20} />
                     </button>
                   </div>
