@@ -109,8 +109,8 @@ function App() {
   const saveEdit = (index, newText) => {
     if (newText.trim()) {
       const trimmedText = newText.trim();
-      const isDuplicate = tasks.some((task, i) => 
-        i !== index && task.toLowerCase() === trimmedText.toLowerCase()
+       const isDuplicate = tasks.some((task, i) => 
+        i !== index && typeof task === 'string' && task.toLowerCase() === trimmedText.toLowerCase()
       );
       
       if (isDuplicate) {
