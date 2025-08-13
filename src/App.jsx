@@ -26,6 +26,10 @@ function App() {
   const [visible, setVisible] = useState(true);
   const [isDarkTheme, setIsDarkTheme] = useState(true);
 
+  // Changed to track editing state per task index
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editText, setEditText] = useState("");
+
   // Load tasks from localStorage
   const [tasks, setTasks] = useState(() => {
     const storedTasks = localStorage.getItem("tasks");
@@ -57,14 +61,7 @@ function App() {
   useEffect(() => {
     localStorage.setItem("checkedTasks", JSON.stringify(checkedTasks));
   }, [checkedTasks]);
-
-  // Load checked tasks from localStorage
-  useEffect(() => {
-    const storedCheckedTasks = localStorage.getItem("checkedTasks");
-    if (storedCheckedTasks) {
-      setCheckedTasks(JSON.parse(storedCheckedTasks));
-    }
-  }, []);
+  
   useEffect(() => {
     if (isIncluded) {
       const timer = setTimeout(() => {
@@ -102,26 +99,44 @@ function App() {
     setIsIncluded(false);
   };
 
-  const deleteTask = (taskToDelete) => {
-    const taskIndex = tasks.indexOf(taskToDelete);
-    setTasks(tasks.filter((t) => t !== taskToDelete));
+  // Start editing a task
+  const startEdit = (index, currentText) => {
+    setEditingIndex(index);
+    setEditText(currentText);
+  };
 
-    // Remove from checked tasks
-    const newCheckedTasks = { ...checkedTasks };
-    delete newCheckedTasks[taskIndex];
-
-    // Reindex remaining checked tasks
-    const reindexedChecked = {};
-    Object.keys(newCheckedTasks).forEach((key) => {
-      const index = parseInt(key);
-      if (index > taskIndex) {
-        reindexedChecked[index - 1] = newCheckedTasks[key];
-      } else if (index < taskIndex) {
-        reindexedChecked[index] = newCheckedTasks[key];
+  // Save edit
+  const saveEdit = (index, newText) => {
+    if (newText.trim()) {
+      const trimmedText = newText.trim();
+      const isDuplicate = tasks.some((task, i) => 
+        i !== index && task.toLowerCase() === trimmedText.toLowerCase()
+      );
+      
+      if (isDuplicate) {
+        setIsIncluded(true);
+        return;
       }
-    });
+      
+      setTasks((prevTasks) => {
+        const updatedTasks = [...prevTasks];
+        updatedTasks[index] = trimmedText;
+        return updatedTasks;
+      });
+    }
+    setEditingIndex(null);
+    setEditText("");
+  };
 
-    setCheckedTasks(reindexedChecked);
+  // Cancel edit
+  const cancelEdit = () => {
+    setEditingIndex(null);
+    setEditText("");
+  };
+
+  const deleteTask = (taskToDelete) => {
+    setTasks(tasks.filter((t) => t !== taskToDelete));
+    setCheckedTasks({});
   };
 
   // Handles task search
@@ -129,6 +144,8 @@ function App() {
     (t) => typeof t === "string" && t.toLowerCase().includes(query.toLowerCase())
   );
 
+
+  // Theme values
   const themeClasses = isDarkTheme
     ? "min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-gray-950 text-gray-200"
     : "min-h-screen bg-gradient-to-b from-gray-50 via-gray-100 to-gray-50 text-gray-800";
@@ -229,27 +246,27 @@ function App() {
 
         {/* Task input bar */}
         <div
-  className={`flex flex-col sm:flex-row border rounded-full w-full max-w-xl p-2 gap-2 backdrop-blur-sm shadow-xl ${inputClasses}`}
->
-  <input
-    type="text"
-    className="flex-grow rounded-full px-4 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-gray-700"
-    placeholder="Type task..."
-    value={task}
-    ref={inputRef}
-    onChange={(e) => setTask(e.target.value)}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") addTask();
-      if (e.key === "Escape") setTask("");
-    }}
-  />
-  <button
-    className={`px-6 py-2 rounded-full transition-colors ${buttonClasses} w-full sm:w-auto`}
-    onClick={addTask}
-  >
-    Add
-  </button>
-</div>
+          className={`flex flex-col sm:flex-row border rounded-full w-full max-w-xl p-2 gap-2 backdrop-blur-sm shadow-xl ${inputClasses}`}
+        >
+          <input
+            type="text"
+            className="flex-grow rounded-full px-4 py-2 bg-transparent focus:outline-none focus:ring-2 focus:ring-gray-700"
+            placeholder="Type task..."
+            value={task}
+            ref={inputRef}
+            onChange={(e) => setTask(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") addTask();
+              if (e.key === "Escape") setTask("");
+            }}
+          />
+          <button
+            className={`px-6 py-2 rounded-full transition-colors ${buttonClasses} w-full sm:w-auto`}
+            onClick={addTask}
+          >
+            Add
+          </button>
+        </div>
 
         {isIncluded && (
           <p className="text-lg text-red-500 font-medium">Error: Task already exists</p>
@@ -264,22 +281,47 @@ function App() {
               Task List {query && `(${filteredTasks.length} of ${tasks.length})`}
             </h3>
             <ul className="w-full max-w-2xl space-y-2 mb-16">
+              {/* Map individual tasks */}
               {filteredTasks.map((taskItem) => {
                 const originalIndex = tasks.indexOf(taskItem);
                 const isChecked = checkedTasks[originalIndex];
+                const isCurrentlyEditing = editingIndex === originalIndex;
 
                 return (
                   <li
                     key={`${taskItem}-${originalIndex}`}
                     className={`flex justify-between items-center gap-6 p-4 rounded-lg transition-colors ${taskItemClasses}`}
                   >
-                    <span
-                      className={`capitalize flex-grow text-left ${
-                        isChecked ? "line-through opacity-60" : ""
-                      }`}
-                    >
-                      {taskItem}
-                    </span>
+                    {isCurrentlyEditing ? (
+                      <input
+                        type="text"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
+                        onBlur={() => saveEdit(originalIndex, editText)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            saveEdit(originalIndex, editText);
+                          }
+                          if (e.key === "Escape") {
+                            cancelEdit();
+                          }
+                        }}
+                        autoFocus
+                        className={`flex-grow rounded px-2 py-1 ${
+                          isDarkTheme 
+                            ? "bg-gray-700 text-gray-100 border-gray-600" 
+                            : "bg-white text-gray-900 border-gray-300"
+                        } border`}
+                      />
+                    ) : (
+                      <span
+                        className={`capitalize flex-grow text-left ${
+                          isChecked ? "line-through opacity-60" : ""
+                        }`}
+                      >
+                        {taskItem}
+                      </span>
+                    )}
 
                     <div className="flex gap-3">
                       <button
@@ -297,11 +339,13 @@ function App() {
                       >
                         <Check size={20} />
                       </button>
+
                       <button
                         aria-label={`Edit task "${taskItem}"`}
                         className={`p-1 transition-colors ${
                           isDarkTheme ? "hover:text-blue-400" : "hover:text-blue-600"
                         }`}
+                        onClick={() => startEdit(originalIndex, taskItem)}
                       >
                         <Edit2 size={20} />
                       </button>
