@@ -1,5 +1,12 @@
 ## To-do List App
 
+Simple, boring to do list app that has the basics.
+
+### Features
+- Add, search, edit, deleted tasks
+- Theme toggle
+- Local storage
+
 ### Built with 
 
 React, 
