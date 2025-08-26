@@ -21,9 +21,9 @@ Vite
 
 ### Screenshots
 
-<img width="1469" height="893" alt="image" src="https://github.com/user-attachments/assets/3fb5ea19-d58d-4f57-b089-1a5124a36504" />
+![Dark theme image](image.png)
 
-<img width="1467" height="901" alt="image" src="https://github.com/user-attachments/assets/c7446c35-44cf-40ac-afce-3078bbfcdb62" />
+![Light theme image](image-1.png)
 
 ### License
 

@@ -9,6 +9,7 @@ function App() {
   const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [query, setQuery] = useState("");
   const [task, setTask] = useState("");
+  const [showError, setShowError] = useState(false);
   const [isIncluded, setIsIncluded] = useState(false);
   const [checkedTasks, setCheckedTasks] = useState(() => {
     const storedCheckedTasks = localStorage.getItem("checkedTasks");
@@ -42,10 +43,14 @@ function App() {
     localStorage.setItem("checkedTasks", JSON.stringify(checkedTasks));
   }, [checkedTasks]);
 
+
+  // same task conflict
   useEffect(() => {
     if (isIncluded) {
+      setShowError(true);
       const timer = setTimeout(() => {
-        setIsIncluded(false);
+        setShowError(false);
+        setTimeout(() => setIsIncluded(false), 300);
       }, 5000);
 
       return () => clearTimeout(timer);
@@ -71,7 +76,7 @@ function App() {
 
     setTasks([...tasks, task.trim()]);
     setTask("");
-    setQuery(""); // Clear search bar when adding task
+    setQuery("");
     setIsIncluded(false);
   };
 
@@ -107,7 +112,6 @@ function App() {
     setEditText("");
   };
 
-  // Cancel edit
   const cancelEdit = () => {
     setEditingIndex(null);
     setEditText("");
@@ -123,7 +127,7 @@ function App() {
     (t) => typeof t === "string" && t.toLowerCase().includes(query.toLowerCase())
   );
 
-  // Modern theme values with improved colors
+  // Color themes
   const themeClasses = isDarkTheme
     ? "min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-slate-900 text-gray-100"
     : "min-h-screen bg-gradient-to-br from-slate-50 via-white to-gray-50 text-gray-800";
@@ -171,9 +175,19 @@ function App() {
         />
 
         {isIncluded && (
-          <div className="flex items-center gap-2 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
-            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-            <p className="text-red-700 font-medium">Task already exists</p>
+          <div
+            className={`flex items-center gap-3 px-4 py-3 rounded-lg border transition-all duration-300 ease-out ${
+              showError ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
+            } ${
+              isDarkTheme
+                ? "bg-red-900/20 border-red-800/50 text-red-300"
+                : "bg-red-50 border-red-200 text-red-700"
+            }`}
+          >
+            <div
+              className={`w-2 h-2 rounded-full ${isDarkTheme ? "bg-red-400" : "bg-red-500"}`}
+            ></div>
+            <p className="font-medium">Task already exists</p>
           </div>
         )}
 

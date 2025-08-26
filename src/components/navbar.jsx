@@ -8,12 +8,12 @@ const Navbar = ({ isDarkTheme, setIsDarkTheme, navClasses, searchProps }) => {
       <SearchBox
         type="Search here..."
         placeholder="Search here..."
-        isDark={isDarkTheme}
+        isDarkTheme={isDarkTheme}
         {...searchProps}
       />
 
       {/* Toggle dark/light theme */}
-      <ToggleTheme isDark={isDarkTheme} setIsDarkTheme={setIsDarkTheme} />
+      <ToggleTheme isDarkTheme={isDarkTheme} setIsDarkTheme={setIsDarkTheme} />
     </nav>
   );
 };
