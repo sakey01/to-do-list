@@ -43,18 +43,18 @@ function App() {
     localStorage.setItem("checkedTasks", JSON.stringify(checkedTasks));
   }, [checkedTasks]);
 
-
-  // same task conflict
+  // Show duplicate task error
   useEffect(() => {
-    if (isIncluded) {
-      setShowError(true);
-      const timer = setTimeout(() => {
-        setShowError(false);
-        setTimeout(() => setIsIncluded(false), 300);
-      }, 5000);
+    if (!isIncluded) return;
 
-      return () => clearTimeout(timer);
-    }
+    setShowError(true);
+
+    const timer = setTimeout(() => {
+      setShowError(false);
+      setIsIncluded(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, [isIncluded]);
 
   const toggleCheck = (taskIndex) => {
@@ -68,7 +68,9 @@ function App() {
   const addTask = () => {
     if (!task.trim()) return;
 
-    const isDuplicate = tasks.some((t) => t.toLowerCase() === task.trim().toLowerCase());
+    const isDuplicate = tasks.some(
+      (t) => typeof t === "string" && t.toLowerCase() === task.trim().toLowerCase()
+    );
     if (isDuplicate) {
       setIsIncluded(true);
       return;
