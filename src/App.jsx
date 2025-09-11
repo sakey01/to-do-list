@@ -19,7 +19,6 @@ function App() {
 
   const inputRef = useRef(null);
 
-
   // Changed to track editing state per task index
   const [editingIndex, setEditingIndex] = useState(null);
   const [editText, setEditText] = useState("");
@@ -33,6 +32,13 @@ function App() {
   // Focus task input on render
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("tasks");
+    if (!stored) {
+      setTasks([]);
+    }
   }, []);
 
   // Save tasks to localStorage
@@ -157,12 +163,9 @@ function App() {
     : "bg-white/70 hover:bg-white/90 border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200";
 
   return (
-    <ThemeContext value={{isDarkTheme, setIsDarkTheme}}>
+    <ThemeContext value={{ isDarkTheme, setIsDarkTheme }}>
       <div className={`${themeClasses} flex flex-col flex-1`}>
-        <Navbar
-          navClasses={navClasses}
-          searchProps={{ searchClasses, query, setQuery }}
-        />
+        <Navbar navClasses={navClasses} searchProps={{ searchClasses, query, setQuery }} />
 
         <main className="flex flex-1 flex-col justify-center items-center text-center gap-8 px-4">
           {/* Quote */}
