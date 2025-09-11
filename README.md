@@ -1,23 +1,17 @@
 ## To-do List App
 
-Simple, boring to do list app that has the basics.
+Simple, boring to do list app.
 
 ### Features
-- Add, search, edit, deleted tasks
-- Theme toggle
-- Local storage
+- Add, search, edit, delete tasks
+- Toggle theme
+- Store tasks locally
 
 ### Built with 
 
 React, 
 Tailwind CSS,
 Vite
-
-### What You Can Do
-
-- Add, edit, delete and update tasks
-- Search tasks by keywords
-- Check completed tasks
 
 ### Screenshots
 

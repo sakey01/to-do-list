@@ -1,15 +1,17 @@
 import { Search } from "lucide-react";
-import { useRef } from "react";
+import { useContext, useRef } from "react";
+import { ThemeContext } from "../contexts/themeContext";
 
 const SearchBox = ({
   type = "text",
   placeholder,
-  isDarkTheme = "true",
   searchClasses = "true",
   query,
   setQuery,
 }) => {
   const inputRef = useRef(null);
+  
+  const { isDarkTheme } = useContext(ThemeContext);
 
   const focusInput = () => {
     inputRef.current.focus();
@@ -21,8 +23,8 @@ const SearchBox = ({
     >
       <Search
         onClick={focusInput}
-        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 cursor-pointer ${
-          isDarkTheme ? "text-gray-500" : "text-gray-400"
+        className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 ${
+          isDarkTheme ? "text-gray-300" : "text-gray-600"
         }`}
       />
       <input
