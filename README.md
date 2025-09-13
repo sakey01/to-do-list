@@ -1,24 +1,25 @@
-## To-do List App
+# 📃 to-do-list 
 
-Simple, boring to do list app.
+A to do list that lets you add, search, edit, check and delete tasks.
 
-### Features
-- Add, search, edit, delete tasks
-- Toggle theme
-- Store tasks locally
+## 💡 About the project
 
-### Built with 
+A to do list that does everything you expect it to do. You can:
 
-React, 
-Tailwind CSS,
-Vite
+- Add tasks you want to complete
+- Mark tasks as done with the check icon
+- Edit tasks if you've made a mistake
+- Search tasks that you're struggling to find
+- Delete tasks that are no longer relevent
+- A custom light theme toggle as well 
 
-### Screenshots
+## 🛠️ Build tools 
+```React```
 
-![Dark theme image](image.png)
+```Tailwindcss```
 
-![Light theme image](image-1.png)
+```Vite```
 
-### License
+## 🎥 Preview
 
-This project is licensed under the MIT License.
+https://github.com/user-attachments/assets/50093895-ff4c-4230-b009-533e024b60cc
